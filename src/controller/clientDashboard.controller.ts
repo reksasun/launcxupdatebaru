@@ -2,7 +2,6 @@
 
 import { Response } from 'express'
 import { prisma } from '../core/prisma'
-import { DisbursementStatus } from '@prisma/client'
 import { ClientAuthRequest } from '../middleware/clientAuth'
 import ExcelJS from 'exceljs'
 import crypto from 'crypto';
@@ -211,6 +210,16 @@ if (statuses.length === 0) statuses = [...allowed];
     })
     const totalBeforeFee = beforeFeeAgg._sum.amount ?? 0
 
+    const feeAgg = await prisma.order.aggregate({
+      _sum: { feeLauncx: true },
+      where: {
+        partnerClientId: { in: clientIds },
+        status: { in: ['SUCCESS', 'DONE', 'SETTLED', 'PAID'] },
+        ...(dateFrom || dateTo ? { createdAt: createdAtFilter } : {}),
+      },
+    })
+    const totalFee = feeAgg._sum.feeLauncx ?? 0
+
     const finalTotal = totalSettlement + pendingSettlement
 
     // (4b) HITUNG TOTAL ACTIVE BALANCE BERDASARKAN clientIds
@@ -292,6 +301,7 @@ const transactions = orders.map(o => {
 return res.json({
   balance: totalActive,
   totalBeforeFee,
+  totalFee,
   finalTotal,
   pendingSettlement,
   totalSettlement,
