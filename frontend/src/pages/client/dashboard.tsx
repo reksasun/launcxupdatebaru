@@ -14,6 +14,7 @@ import {
   ListChecks,
   FileText,
 } from 'lucide-react'
+import type { DashboardSummary } from '@/types/dashboard'
 
 type RawStatus = '' | 'SUCCESS' | 'DONE' | 'SETTLED' | 'PAID' | 'PENDING' | 'EXPIRED'
 type Tx = {
@@ -46,6 +47,7 @@ export default function ClientDashboardPage() {
   // Summary
   const [balance, setBalance]                 = useState(0)
   const [totalBeforeFee, setTotalBeforeFee]   = useState(0)
+  const [totalFee, setTotalFee]               = useState(0)
   const [finalTotal, setFinalTotal]           = useState(0)
   const [pendingSettlement, setPendingSettlement] = useState(0)
   const [totalSettlement, setTotalSettlement] = useState(0)
@@ -135,18 +137,11 @@ export default function ClientDashboardPage() {
   const fetchSummary = async () => {
     setLoadingSummary(true)
     try {
-      const { data } = await api.get<{
-        balance: number
-        totalBeforeFee: number
-        finalTotal: number
-        pendingSettlement: number
-        totalSettlement?: number
-        totalPending?: number
-        children: ClientOption[]
-      }>('/client/dashboard', { params: buildParams() })
+      const { data } = await api.get<DashboardSummary>('/client/dashboard', { params: buildParams() })
 
       setBalance(data.balance)
       setTotalBeforeFee(data.totalBeforeFee || 0)
+      setTotalFee(data.totalFee || 0)
       setFinalTotal(data.finalTotal || 0)
       setPendingSettlement(data.pendingSettlement ?? data.totalPending ?? 0)
       setTotalSettlement(data.totalSettlement || 0)
@@ -277,6 +272,11 @@ try {
             <ListChecks className={styles.cardIcon} />
             <h2>Total Sebelum Fee</h2>
             <p>{totalBeforeFee.toLocaleString('id-ID',{ style:'currency', currency:'IDR' })}</p>
+          </div>
+          <div className={styles.card}>
+            <FileText className={styles.cardIcon} />
+            <h2>Total Fee</h2>
+            <p>{totalFee.toLocaleString('id-ID',{ style:'currency', currency:'IDR' })}</p>
           </div>
           <div className={styles.card}>
             <ClipboardCopy className={styles.cardIcon} />

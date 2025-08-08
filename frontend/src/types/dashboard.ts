@@ -43,3 +43,14 @@ export type SubBalance = {
   provider: string
   balance: number
 }
+
+export interface DashboardSummary {
+  balance: number
+  totalBeforeFee: number
+  totalFee: number
+  finalTotal: number
+  pendingSettlement: number
+  totalSettlement?: number
+  totalPending?: number
+  children: { id: string; name: string }[]
+}
