@@ -268,19 +268,19 @@ try {
 
       <aside className={styles.sidebar}>
         <section className={styles.statsGrid}>
-          <div className={styles.card}>
+          <div className={`${styles.card} ${styles.paidBalance}`}>
             <ListChecks className={styles.cardIcon} />
-            <h2>Total Sebelum Fee</h2>
+            <h2>Paid Amount</h2>
             <p>{totalBeforeFee.toLocaleString('id-ID',{ style:'currency', currency:'IDR' })}</p>
           </div>
-          <div className={styles.card}>
+          <div className={`${styles.card} ${styles.paidBalance}`}>
             <FileText className={styles.cardIcon} />
             <h2>Total Fee</h2>
             <p>{totalFee.toLocaleString('id-ID',{ style:'currency', currency:'IDR' })}</p>
           </div>
-          <div className={styles.card}>
+          <div className={`${styles.card} ${styles.paidBalance}`}>
             <ClipboardCopy className={styles.cardIcon} />
-            <h2>Total Akhir</h2>
+            <h2>Net Amount</h2>
             <p>{finalTotal.toLocaleString('id-ID',{ style:'currency', currency:'IDR' })}</p>
           </div>
           <div className={`${styles.card} ${styles.pendingBalance}`}>
