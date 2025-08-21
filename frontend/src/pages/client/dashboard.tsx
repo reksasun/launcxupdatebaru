@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import api from '@/lib/apiClient'
+import { authManager } from '@/lib/authManager'
 import styles from './ClientDashboard.module.css'
 import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
@@ -172,7 +173,7 @@ export default function ClientDashboardPage() {
 
   // Export Excel
   const handleExport = async () => {
-    const token = localStorage.getItem('clientToken')
+    const token = authManager.getToken('client')
     if (!token) return router.push('/client/login')
 setExporting(true)
     

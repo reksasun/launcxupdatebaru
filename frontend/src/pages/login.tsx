@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import api from '@/lib/api'
+import { authManager } from '@/lib/authManager'
 
 import styles from './AdminAuth.module.css'
 
@@ -22,7 +23,7 @@ export default function LoginPage() {
 
       const res = await api.post('/auth/login', payload)
       const token = res.data.result.access_token
-      localStorage.setItem('token', token)
+      authManager.setToken('admin', token)
       window.location.href = '/dashboard'
     } catch (err: any) {
       const msg = err.response?.data?.error

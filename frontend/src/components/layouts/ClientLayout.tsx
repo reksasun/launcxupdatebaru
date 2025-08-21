@@ -6,6 +6,7 @@ import { usePathname, useRouter } from 'next/navigation'
 import { Menu, Home, CreditCard, Bell, Settings as IconSettings, LogOut } from 'lucide-react'
 import { motion } from 'framer-motion'
 import styles from './ClientLayout.module.css'
+import { authManager } from '@/lib/authManager'
 
 interface ClientLayoutProps {
   children: ReactNode
@@ -29,7 +30,7 @@ export default function ClientLayout({ children }: ClientLayoutProps) {
 
   const handleLogout = () => {
     // 1) Hapus token
-    localStorage.removeItem('token')
+    authManager.clearToken('client')
     // 2) Redirect ke login
     router.replace('/client/login')
   }

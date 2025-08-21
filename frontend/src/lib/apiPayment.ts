@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { attachAuthInterceptor } from './authManager';
 
 const paymentApi = axios.create({
   baseURL: process.env.NEXT_PUBLIC_PAYMENT_URL,
@@ -7,16 +8,11 @@ const paymentApi = axios.create({
   },
 });
 
-paymentApi.interceptors.request.use(config => {
-  if (typeof window !== 'undefined') {
-    const token = localStorage.getItem('token');
-    if (token) {
-      config.headers = config.headers || {};
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-  }
-  return config;
-});
+attachAuthInterceptor(
+  paymentApi,
+  'admin',
+  `${process.env.NEXT_PUBLIC_API_URL}/auth/refresh-admin`
+);
 
 export const getPayments = () => paymentApi.get('/payments');
 

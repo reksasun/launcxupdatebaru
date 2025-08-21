@@ -1,4 +1,5 @@
 import axios, { AxiosInstance } from 'axios';
+import { attachAuthInterceptor } from './authManager';
 
 type Service = 'default' | 'auth' | 'payment' | 'withdrawal';
 
@@ -17,14 +18,11 @@ export const createApi = (service: Service = 'default'): AxiosInstance => {
     },
   });
 
-  // Attach token secara otomatis
-  api.interceptors.request.use(config => {
-    if (typeof window !== 'undefined') {
-      const token = localStorage.getItem('token');
-      if (token) config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-  });
+  attachAuthInterceptor(
+    api,
+    'admin',
+    `${process.env.NEXT_PUBLIC_API_URL}/auth/refresh-admin`
+  );
 
   return api;
 };

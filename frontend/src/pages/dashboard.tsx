@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import api from '@/lib/api'
+import { authManager } from '@/lib/authManager'
 import { useRequireAuth } from '@/hooks/useAuth'
 import { Wallet, ListChecks, Clock, Layers } from 'lucide-react'
 import styles from './Dashboard.module.css'
@@ -142,7 +143,7 @@ const [withdrawStatusFilter, setWithdrawStatusFilter] = useState('')
   const [perPage, setPerPage] = useState(10)
 
     useEffect(() => {
-    const tok = localStorage.getItem('token')
+    const tok = authManager.getToken('admin')
     if (tok) {
       const payload = parseJwt(tok)
       if (payload?.role === 'SUPER_ADMIN') setIsSuperAdmin(true)

@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { attachAuthInterceptor } from './authManager';
 
 const adminApi = axios.create({
   baseURL: process.env.NEXT_PUBLIC_ADMIN_URL,
@@ -7,16 +8,11 @@ const adminApi = axios.create({
   },
 });
 
-adminApi.interceptors.request.use(config => {
-  if (typeof window !== 'undefined') {
-    const token = localStorage.getItem('token');
-    if (token) {
-      config.headers = config.headers || {};
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-  }
-  return config;
-});
+attachAuthInterceptor(
+  adminApi,
+  'admin',
+  `${process.env.NEXT_PUBLIC_API_URL}/auth/refresh-admin`
+);
 
 export const getAdminUsers = () => adminApi.get('/users');
 export const createAdminUser = (payload: { name: string; email: string; password: string; role: string }) =>

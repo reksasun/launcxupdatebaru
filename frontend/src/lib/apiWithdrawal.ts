@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { attachAuthInterceptor } from './authManager';
 
 const withdrawalApi = axios.create({
   baseURL: process.env.NEXT_PUBLIC_WITHDRAWAL_URL,
@@ -7,16 +8,11 @@ const withdrawalApi = axios.create({
   },
 });
 
-withdrawalApi.interceptors.request.use(config => {
-  if (typeof window !== 'undefined') {
-    const token = localStorage.getItem('token');
-    if (token) {
-      config.headers = config.headers || {};
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-  }
-  return config;
-});
+attachAuthInterceptor(
+  withdrawalApi,
+  'admin',
+  `${process.env.NEXT_PUBLIC_API_URL}/auth/refresh-admin`
+);
 
 export const getWithdrawals = () => withdrawalApi.get('/withdrawals');
 export const createWithdrawal = (payload: any) => withdrawalApi.post('/withdrawals', payload);
