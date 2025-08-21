@@ -21,5 +21,6 @@ adminApi.interceptors.request.use(config => {
 export const getAdminUsers = () => adminApi.get('/users');
 export const createAdminUser = (payload: { name: string; email: string; password: string; role: string }) =>
   adminApi.post('/users', payload);
+export const deleteAdminUser = (id: string) => adminApi.delete(`/users/${id}`);
 
 export default adminApi;

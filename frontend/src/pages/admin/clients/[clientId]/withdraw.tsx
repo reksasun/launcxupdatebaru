@@ -2,7 +2,7 @@
 import { NextPage } from 'next'
 import { useRouter } from 'next/router'
 import { useEffect, useState } from 'react'
-import api from '@/lib/api'
+import { getClientWithdrawals, getClientSubwallets } from '@/lib/apiWithdrawal'
 import ClientLayout from '@/components/layouts/ClientLayout'
 import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
@@ -53,30 +53,31 @@ const AdminClientWithdrawPage: NextPage & { disableLayout?: boolean } = () => {
 
   useEffect(() => {
     if (!clientId) return
-    setLoading(true)
-    setPageError('')
-    const params: any = { page, limit: perPage }
-    if (statusFilter) params.status = statusFilter
-    if (searchRef) params.ref = searchRef
-    if (startDate) params.fromDate = startDate.toISOString()
-    if (endDate) params.toDate = endDate.toISOString()
+    const fetch = async () => {
+      setLoading(true)
+      setPageError('')
+      const params: any = { page, limit: perPage }
+      if (statusFilter) params.status = statusFilter
+      if (searchRef) params.ref = searchRef
+      if (startDate) params.fromDate = startDate.toISOString()
+      if (endDate) params.toDate = endDate.toISOString()
 
-    api
-      .get<{ data: Withdrawal[]; total: number }>(`/admin/clients/${clientId}/withdrawals`, {
-        params
-      })
-      .then(res => {
+      try {
+        const res = await getClientWithdrawals(clientId, params)
         setWithdrawals(res.data.data)
         setTotalPages(Math.max(1, Math.ceil(res.data.total / perPage)))
-      })
-      .catch(() => setPageError('Failed to load data'))
-      .finally(() => setLoading(false))
+      } catch {
+        setPageError('Failed to load data')
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetch()
   }, [clientId, searchRef, statusFilter, startDate, endDate, page, perPage])
 
   useEffect(() => {
     if (!clientId) return
-    api
-      .get<SubWallet[]>(`/admin/clients/${clientId}/subwallets`)
+    getClientSubwallets(clientId)
       .then(res => setWallets(res.data))
       .catch(() => {})
   }, [clientId])
