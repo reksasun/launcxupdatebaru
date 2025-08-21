@@ -20,5 +20,9 @@ withdrawalApi.interceptors.request.use(config => {
 
 export const getWithdrawals = () => withdrawalApi.get('/withdrawals');
 export const createWithdrawal = (payload: any) => withdrawalApi.post('/withdrawals', payload);
+export const getClientWithdrawals = (clientId: string, params?: any) =>
+  withdrawalApi.get(`/admin/clients/${clientId}/withdrawals`, { params });
+export const getClientSubwallets = (clientId: string) =>
+  withdrawalApi.get(`/admin/clients/${clientId}/subwallets`);
 
 export default withdrawalApi;

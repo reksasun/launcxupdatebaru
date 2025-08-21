@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import api from '@/lib/api'
+import { getAdminUsers, createAdminUser, deleteAdminUser } from '@/lib/apiAdmin'
 import { useRequireAuth } from '@/hooks/useAuth'
 import styles from './AdminUsersPage.module.css'
 
@@ -19,12 +19,16 @@ export default function AdminUsersPage() {
   const [password, setPassword] = useState('')
   const [role, setRole] = useState('ADMIN')
   const [error, setError] = useState('')
+  const [pageError, setPageError] = useState('')
   const [loading, setLoading] = useState(false)
+  const [fetching, setFetching] = useState(true)
   const [search, setSearch] = useState('')
 
   const loadUsers = async () => {
+    setFetching(true)
+    setPageError('')
     try {
-      const res = await api.get('/admin/users')
+      const res = await getAdminUsers()
       let dataArray: AdminUser[] = []
       const resp = res.data as any
       if (Array.isArray(resp)) dataArray = resp
@@ -33,6 +37,9 @@ export default function AdminUsersPage() {
       setUsers(dataArray)
     } catch {
       setUsers([])
+      setPageError('Failed to load admin users')
+    } finally {
+      setFetching(false)
     }
   }
 
@@ -43,7 +50,7 @@ export default function AdminUsersPage() {
     setLoading(true)
     setError('')
     try {
-      const res = await api.post<AdminUser>('/admin/users', { name, email, password, role })
+      const res = await createAdminUser({ name, email, password, role })
       setUsers(prev => [res.data, ...prev])
       setName(''); setEmail(''); setPassword('')
     } catch (e: any) {
@@ -56,7 +63,7 @@ export default function AdminUsersPage() {
   const deactivateUser = async (id: string) => {
     if (!confirm('Deactivate this admin?')) return
     try {
-      await api.delete(`/admin/users/${id}`)
+      await deleteAdminUser(id)
       setUsers(prev => prev.filter(u => u.id !== id))
     } catch {}
   }
@@ -115,43 +122,48 @@ export default function AdminUsersPage() {
         </div>
       </section>
 
-      <section className={styles.tableCard}>
-        <input
-          className={styles.searchInput}
-          placeholder="Search admins"
-          value={search}
-          onChange={e => setSearch(e.target.value)}
-        />
-        <table className={styles.table}>
-          <thead className={styles.thead}>
-            <tr>
-              {['Name', 'Email', 'Role', 'Actions'].map(header => (
-                <th key={header} className={styles.th}>{header}</th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {filteredUsers.map(u => (
-              <tr key={u.id} className={styles.tr}>
-                <td className={styles.td}>{u.name}</td>
-                <td className={styles.td}>{u.email}</td>
-                <td className={styles.td}>{u.role}</td>
-                <td className={styles.td}>
-                  <button
-                    onClick={() => deactivateUser(u.id)}
-                    className={styles.btnDanger}
-                  >Deactivate</button>
-                </td>
-              </tr>
-            ))}
-            {filteredUsers.length === 0 && (
+      {pageError && <p className={styles.errorText}>{pageError}</p>}
+      {fetching ? (
+        <p>Loading…</p>
+      ) : (
+        <section className={styles.tableCard}>
+          <input
+            className={styles.searchInput}
+            placeholder="Search admins"
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+          />
+          <table className={styles.table}>
+            <thead className={styles.thead}>
               <tr>
-                <td colSpan={4} className={styles.emptyText}>No admins available.</td>
+                {['Name', 'Email', 'Role', 'Actions'].map(header => (
+                  <th key={header} className={styles.th}>{header}</th>
+                ))}
               </tr>
-            )}
-          </tbody>
-        </table>
-      </section>
+            </thead>
+            <tbody>
+              {filteredUsers.map(u => (
+                <tr key={u.id} className={styles.tr}>
+                  <td className={styles.td}>{u.name}</td>
+                  <td className={styles.td}>{u.email}</td>
+                  <td className={styles.td}>{u.role}</td>
+                  <td className={styles.td}>
+                    <button
+                      onClick={() => deactivateUser(u.id)}
+                      className={styles.btnDanger}
+                    >Deactivate</button>
+                  </td>
+                </tr>
+              ))}
+              {filteredUsers.length === 0 && (
+                <tr>
+                  <td colSpan={4} className={styles.emptyText}>No admins available.</td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </section>
+      )}
     </div>
   )
 }
