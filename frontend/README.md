@@ -2,6 +2,15 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 
 ## Getting Started
 
+### Environment Variables
+
+Copy `.env.example` to `.env` and adjust the values for your environment.
+
+- `NEXT_PUBLIC_API_URL` – Base URL for the gateway/back-end API (e.g. http://localhost:5000/api/v1).
+- `NEXT_PUBLIC_AUTH_URL` – Base URL for the auth service.
+- `NEXT_PUBLIC_PAYMENT_URL` – Base URL for the payment service.
+- `NEXT_PUBLIC_WITHDRAWAL_URL` – Base URL for the withdrawal service.
+
 First, run the development server:
 
 ```bash
