@@ -1,0 +1,146 @@
+version: '3.8'
+
+services:
+  mongo:
+    image: mongo:7
+    restart: always
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - launcxnet
+
+  zookeeper:
+    image: bitnami/zookeeper:3
+    restart: always
+    environment:
+      - ALLOW_ANONYMOUS_LOGIN=yes
+    networks:
+      - launcxnet
+
+  kafka:
+    image: bitnami/kafka:3
+    restart: always
+    environment:
+      - KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper:2181
+      - ALLOW_PLAINTEXT_LISTENER=yes
+      - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092
+      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+    networks:
+      - launcxnet
+
+  gateway:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - PORT=5000
+      - DATABASE_URL=mongodb://mongo:27017/launcxdb
+      - JWT_SECRET=supersecret
+      - KAFKA_BROKER=kafka:9092
+    ports:
+      - "5000:5000"
+    depends_on:
+      - mongo
+      - kafka
+    networks:
+      - launcxnet
+
+  admin-service:
+    build:
+      context: ./admin-service
+      dockerfile: Dockerfile
+    environment:
+      - PORT=5001
+      - DATABASE_URL=mongodb://mongo:27017/launcxdb
+      - JWT_SECRET=supersecret
+      - KAFKA_BROKER=kafka:9092
+    ports:
+      - "5001:5001"
+    depends_on:
+      - mongo
+      - kafka
+    networks:
+      - launcxnet
+
+  auth-service:
+    build:
+      context: ./auth-service
+      dockerfile: Dockerfile
+    environment:
+      - PORT=5002
+      - DATABASE_URL=mongodb://mongo:27017/launcxdb
+      - JWT_SECRET=supersecret
+      - KAFKA_BROKER=kafka:9092
+    ports:
+      - "5002:5002"
+    depends_on:
+      - mongo
+      - kafka
+    networks:
+      - launcxnet
+
+  payment-service:
+    build:
+      context: ./payment-service
+      dockerfile: Dockerfile
+    environment:
+      - PORT=5100
+      - DATABASE_URL=mongodb://mongo:27017/launcxdb
+      - JWT_SECRET=supersecret
+      - KAFKA_BROKER=kafka:9092
+    ports:
+      - "5100:5100"
+    depends_on:
+      - mongo
+      - kafka
+    networks:
+      - launcxnet
+
+  withdrawal-service:
+    build:
+      context: ./withdrawal-service
+      dockerfile: Dockerfile
+    environment:
+      - PORT=5200
+      - DATABASE_URL=mongodb://mongo:27017/launcxdb
+      - JWT_SECRET=supersecret
+      - KAFKA_BROKER=kafka:9092
+      - HILOGATE_MERCHANT_ID=
+      - HILOGATE_SECRET_KEY=
+      - HILOGATE_ENV=sandbox
+      - HILOGATE_BASE_URL=https://app.hilogate.com
+      - OY_API_KEY=
+      - OY_USERNAME=
+      - OY_BASE_URL=https://api-stg.oyindonesia.com
+    ports:
+      - "5200:5200"
+    depends_on:
+      - mongo
+      - kafka
+    networks:
+      - launcxnet
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    environment:
+      - NODE_ENV=production
+    ports:
+      - "3000:3000"
+    depends_on:
+      - gateway
+    networks:
+      - launcxnet
+
+networks:
+  launcxnet:
+
+volumes:
+  mongo-data:
