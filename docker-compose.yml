@@ -132,6 +132,10 @@ services:
       dockerfile: Dockerfile
     environment:
       - NODE_ENV=production
+      - NEXT_PUBLIC_API_URL=http://gateway:5000/api/v1
+      - NEXT_PUBLIC_AUTH_URL=http://auth-service:5002/api/v1
+      - NEXT_PUBLIC_PAYMENT_URL=http://payment-service:5100/api/v1
+      - NEXT_PUBLIC_WITHDRAWAL_URL=http://withdrawal-service:5200/api/v1
     ports:
       - "3000:3000"
     depends_on:
