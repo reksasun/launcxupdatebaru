@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import apiClient from '@/lib/apiClient'
+import { authManager } from '@/lib/authManager'
 import { X } from 'lucide-react'
 import styles from './ClientAuth.module.css'
 
@@ -58,7 +59,7 @@ export default function LoginForm() {
 
       // on success: clear both state and storage, then redirect
       clearMessage()
-      localStorage.setItem('clientToken', data.token)
+      authManager.setToken('client', data.token)
       router.push('/client/dashboard')
 
     } catch (err: any) {

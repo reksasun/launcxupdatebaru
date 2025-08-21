@@ -6,6 +6,7 @@ import { usePathname, useRouter } from 'next/navigation'
 import { Menu, Home, Box, LogOut, Settings, BoomBox, ShieldCheck, FileText, User } from 'lucide-react'
 import { motion } from 'framer-motion'
 import styles from './Layout.module.css'
+import { authManager } from '@/lib/authManager'
 
 interface AdminLayoutProps {
   children: ReactNode
@@ -34,7 +35,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
 
   const handleLogout = () => {
     // 1. Hapus token atau session
-    localStorage.removeItem('token')
+    authManager.clearToken('admin')
     // (jika pakai cookie: document.cookie = 'token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT')
 
     // 2. Redirect ke login
